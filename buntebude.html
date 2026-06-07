@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunte Bude — Keramik Café Schmelz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE7D6;
+    --ink: #1A1410;
+    --ink-soft: #3D3329;
+    --terracotta: #C4623A;
+    --terracotta-light: #E8845C;
+    --terracotta-pale: #F5D5C5;
+    --sage: #6B7C5E;
+    --sage-light: #A8B89A;
+    --gold: #B8963E;
+    --white: #FDFAF5;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ─── CURSOR ─── */
+  #cursor {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, background 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--terracotta);
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.2s, width 0.3s, height 0.3s;
+    transform: translate(-50%, -50%);
+    opacity: 0.7;
+  }
+  body.hovering #cursor { transform: translate(-50%,-50%) scale(2.5); background: var(--gold); }
+  body.hovering #cursor-ring { width: 60px; height: 60px; border-color: var(--gold); opacity: 0.4; }
+
+  /* ─── PAGE LOADER ─── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--ink);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loader.done { opacity: 0; visibility: hidden; }
+  .loader-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.2em;
+    clip-path: inset(0 100% 0 0);
+    animation: revealText 1.2s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;
+  }
+  .loader-sub {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    color: var(--terracotta-light);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.2s forwards;
+  }
+  .loader-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    width: 0;
+    background: var(--terracotta);
+    animation: loadBar 1.8s ease forwards;
+  }
+  @keyframes revealText { to { clip-path: inset(0 0% 0 0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes loadBar { to { width: 100%; } }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(245, 240, 232, 0.96);
+    backdrop-filter: blur(12px);
+    padding: 1rem 4vw;
+    box-shadow: 0 1px 0 rgba(26,20,16,0.08);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  nav.scrolled .nav-logo { color: var(--ink); }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: rgba(245,240,232,0.8);
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--terracotta);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  nav.scrolled .nav-links a { color: var(--ink-soft); }
+  .nav-cta {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--cream);
+    border: 1px solid rgba(245,240,232,0.5);
+    padding: 0.55rem 1.4rem;
+    transition: all 0.3s;
+  }
+  .nav-cta:hover { background: var(--terracotta); border-color: var(--terracotta); }
+  nav.scrolled .nav-cta { color: var(--ink); border-color: rgba(26,20,16,0.3); }
+  nav.scrolled .nav-cta:hover { color: var(--cream); background: var(--terracotta); border-color: var(--terracotta); }
+
+  /* Mobile Nav */
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; }
+  .hamburger span { display: block; width: 24px; height: 1px; background: var(--cream); transition: all 0.3s; }
+  nav.scrolled .hamburger span { background: var(--ink); }
+  .mobile-menu {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--ink);
+    z-index: 99;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .mobile-menu.open { opacity: 1; }
+  .mobile-menu a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--cream);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--terracotta); }
+
+  /* ─── HERO ─── */
+  .hero {
+    height: 100svh;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #2C1F14 0%, #3D2B1A 40%, #1A1008 100%);
+    overflow: hidden;
+  }
+  .hero-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(196,98,58,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 70%, rgba(107,124,94,0.15) 0%, transparent 50%);
+  }
+  .hero-circles {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .hero-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(196,98,58,0.15);
+    animation: rotateSlow linear infinite;
+  }
+  .hero-circle:nth-child(1) { width: 500px; height: 500px; top: -100px; right: -100px; animation-duration: 40s; }
+  .hero-circle:nth-child(2) { width: 800px; height: 800px; top: -250px; right: -250px; animation-duration: 60s; animation-direction: reverse; border-color: rgba(184,150,62,0.08); }
+  .hero-circle:nth-child(3) { width: 300px; height: 300px; bottom: 10%; left: -80px; animation-duration: 35s; border-color: rgba(107,124,94,0.2); }
+  @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* Brush stroke texture */
+  .hero-texture {
+    position: absolute; inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 6vw 8vh;
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--terracotta-light);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 2s forwards;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 2.1s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--terracotta-light);
+  }
+  .hero-desc {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-weight: 300;
+    color: rgba(245,240,232,0.65);
+    line-height: 1.7;
+    max-width: 500px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 2.3s forwards;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 2.5s forwards;
+  }
+  .btn-primary {
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--cream);
+    background: var(--terracotta);
+    border: 1px solid var(--terracotta);
+    padding: 1rem 2.2rem;
+    transition: all 0.35s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: transparent; color: var(--terracotta-light); }
+  .btn-outline {
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--cream);
+    border: 1px solid rgba(245,240,232,0.35);
+    padding: 1rem 2.2rem;
+    transition: all 0.35s;
+    display: inline-block;
+  }
+  .btn-outline:hover { border-color: var(--cream); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 3rem; right: 6vw;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 2.8s forwards;
+  }
+  .hero-scroll span {
+    font-size: 0.62rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    writing-mode: vertical-rl;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, rgba(196,98,58,0.8), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(1); opacity: 0.6; }
+    50% { transform: scaleY(0.5); opacity: 1; }
+  }
+
+  /* ─── MARQUEE ─── */
+  .marquee-section {
+    background: var(--terracotta);
+    padding: 1.1rem 0;
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  .marquee-section:hover .marquee-track { animation-play-state: paused; }
+  .marquee-item {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+    white-space: nowrap;
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .marquee-item::after {
+    content: '✦';
+    font-size: 0.5rem;
+    color: rgba(245,240,232,0.5);
+  }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ─── SECTION COMMON ─── */
+  section { padding: 10rem 6vw; }
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 2rem; height: 1px;
+    background: var(--terracotta);
+    display: inline-block;
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── INTRO SPLIT ─── */
+  .intro-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8vw;
+    align-items: center;
+    background: var(--white);
+  }
+  .intro-left .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+  .intro-left .h2 em { font-style: italic; color: var(--terracotta); }
+  .intro-left p {
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    margin-bottom: 1.5rem;
+  }
+  .intro-right {
+    position: relative;
+  }
+  .intro-img-wrap {
+    position: relative;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+  }
+  .intro-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+  }
+  .intro-img-wrap:hover img { transform: scale(1.04); }
+  .intro-img-badge {
+    position: absolute;
+    bottom: -2rem; left: -2rem;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  .intro-img-badge span:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+  }
+  .intro-img-badge span:last-child {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.75);
+    text-align: center;
+    padding: 0 0.5rem;
+  }
+
+  /* ─── SERVICES ─── */
+  .services-section { background: var(--cream); }
+  .services-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 5rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  .services-header .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--ink);
+    max-width: 500px;
+  }
+  .services-header .h2 em { font-style: italic; color: var(--terracotta); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .service-card {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: var(--ink);
+    cursor: none;
+  }
+  .service-card-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .service-card:hover .service-card-bg { transform: scale(1.06); }
+  .service-card-bg.bg1 {
+    background: linear-gradient(145deg, #3D2B1A 0%, #6B3D25 50%, #8B4B2A 100%);
+  }
+  .service-card-bg.bg2 {
+    background: linear-gradient(145deg, #2C3D25 0%, #4A6B35 50%, #3D5A2C 100%);
+  }
+  .service-card-bg.bg3 {
+    background: linear-gradient(145deg, #1A2A3D 0%, #2C4A6B 50%, #1A3050 100%);
+  }
+  .service-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,20,16,0.9) 0%, rgba(26,20,16,0.2) 60%, transparent 100%);
+  }
+  .service-card-content {
+    position: absolute; inset: 0;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .service-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.12);
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    line-height: 1;
+  }
+  .service-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--terracotta-light);
+    margin-bottom: 0.75rem;
+  }
+  .service-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .service-desc {
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.6);
+    line-height: 1.7;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.4s;
+    opacity: 0;
+  }
+  .service-card:hover .service-desc { max-height: 100px; opacity: 1; }
+  .service-arrow {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(245,240,232,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1.5rem;
+    transition: all 0.3s;
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  .service-card:hover .service-arrow { transform: translateX(0); opacity: 1; border-color: var(--terracotta); }
+  .service-arrow svg { width: 16px; height: 16px; stroke: var(--cream); }
+
+  /* ─── SISTERS ─── */
+  .sisters-section {
+    background: var(--ink);
+    color: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 0;
+  }
+  .sisters-left {
+    padding: 10rem 6vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .sisters-left .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 3rem;
+  }
+  .sisters-left .h2 em { font-style: italic; color: var(--terracotta-light); }
+  .sister-block {
+    padding: 2rem 0;
+    border-top: 1px solid rgba(245,240,232,0.1);
+  }
+  .sister-block:last-of-type { border-bottom: 1px solid rgba(245,240,232,0.1); }
+  .sister-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--terracotta-light);
+    margin-bottom: 0.25rem;
+  }
+  .sister-role {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    margin-bottom: 1rem;
+  }
+  .sister-bio {
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(245,240,232,0.65);
+  }
+  .sisters-right {
+    position: relative;
+    overflow: hidden;
+    min-height: 600px;
+  }
+  .sisters-right-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #3D2B1A 0%, #5A3C28 50%, #6B4A30 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sisters-decorative {
+    position: relative;
+    width: 300px; height: 400px;
+  }
+  .sisters-decorative-circle {
+    position: absolute;
+    border: 1px solid rgba(196,98,58,0.2);
+    border-radius: 50%;
+    animation: rotateSlow linear infinite;
+  }
+  .sisters-decorative-circle:nth-child(1) { inset: 0; animation-duration: 30s; }
+  .sisters-decorative-circle:nth-child(2) { inset: -40px; animation-duration: 45s; animation-direction: reverse; border-color: rgba(184,150,62,0.15); }
+  .sisters-quote {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+  .sisters-quote p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+    line-height: 1.5;
+  }
+  .sisters-quote p span { color: var(--terracotta-light); }
+
+  /* ─── INFO BAR ─── */
+  .info-bar {
+    background: var(--cream-dark);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0;
+  }
+  .info-item {
+    padding: 4rem 4vw;
+    border-right: 1px solid rgba(26,20,16,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .info-item:last-child { border-right: none; }
+  .info-icon {
+    width: 2.5rem; height: 2.5rem;
+    border-radius: 50%;
+    background: var(--terracotta-pale);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .info-icon svg { width: 16px; height: 16px; stroke: var(--terracotta); }
+  .info-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(26,20,16,0.4);
+  }
+  .info-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  /* ─── EVENTS ─── */
+  .events-section { background: var(--white); }
+  .events-section .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 300;
+    color: var(--ink);
+    margin-bottom: 4rem;
+    line-height: 1.2;
+  }
+  .events-section .h2 em { font-style: italic; color: var(--terracotta); }
+  .events-list { display: flex; flex-direction: column; }
+  .event-row {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    border-top: 1px solid rgba(26,20,16,0.1);
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .event-row:last-child { border-bottom: 1px solid rgba(26,20,16,0.1); }
+  .event-row:hover { padding-left: 1rem; }
+  .event-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(26,20,16,0.25);
+    width: 2rem;
+    flex-shrink: 0;
+  }
+  .event-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 300;
+    color: var(--ink);
+    flex: 1;
+    transition: color 0.3s;
+  }
+  .event-row:hover .event-name { color: var(--terracotta); }
+  .event-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--sage);
+    background: rgba(107,124,94,0.1);
+    padding: 0.4rem 0.9rem;
+    flex-shrink: 0;
+  }
+  .event-price {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* ─── GALLERY ─── */
+  .gallery-section {
+    padding: 8rem 0;
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .gallery-header {
+    padding: 0 6vw;
+    margin-bottom: 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .gallery-header .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .gallery-header .h2 em { font-style: italic; color: var(--terracotta-light); }
+  .gallery-strip {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    padding: 0 6vw;
+  }
+  .gallery-strip::-webkit-scrollbar { display: none; }
+  .gallery-item {
+    flex-shrink: 0;
+    width: clamp(240px, 25vw, 360px);
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    position: relative;
+  }
+  .gallery-item-bg {
+    width: 100%; height: 100%;
+    transition: transform 0.6s ease;
+  }
+  .gallery-item:hover .gallery-item-bg { transform: scale(1.05); }
+  .gallery-item-bg.g1 { background: linear-gradient(145deg, #6B3D25, #C4623A, #8B4B2A); }
+  .gallery-item-bg.g2 { background: linear-gradient(145deg, #4A6B35, #6B9E45, #3D5A2C); }
+  .gallery-item-bg.g3 { background: linear-gradient(145deg, #5A3C1A, #8B6030, #C4A855); }
+  .gallery-item-bg.g4 { background: linear-gradient(145deg, #2C4A3D, #4A8B6B, #2C6B50); }
+  .gallery-item-bg.g5 { background: linear-gradient(145deg, #3D2550, #6B3D8B, #8B5AA0); }
+  .gallery-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(to top, rgba(26,20,16,0.8), transparent);
+    transform: translateY(100%);
+    transition: transform 0.4s ease;
+  }
+  .gallery-item:hover .gallery-caption { transform: translateY(0); }
+  .gallery-caption p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+  }
+
+  /* ─── CTA BAND ─── */
+  .cta-section {
+    background: var(--terracotta);
+    padding: 8rem 6vw;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(245,240,232,0.08) 0%, transparent 60%);
+  }
+  .cta-section .h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .cta-section p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.75);
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .cta-section .btn-primary {
+    background: var(--cream);
+    color: var(--terracotta);
+    border-color: var(--cream);
+    position: relative;
+  }
+  .cta-section .btn-primary:hover {
+    background: transparent;
+    color: var(--cream);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 6rem 6vw 3rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 5rem;
+  }
+  .footer-brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+  }
+  .footer-brand-desc {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 2rem;
+    max-width: 280px;
+  }
+  .footer-social {
+    display: flex;
+    gap: 1rem;
+  }
+  .footer-social a {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(245,240,232,0.15);
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .footer-social a:hover { border-color: var(--terracotta); background: var(--terracotta); }
+  .footer-social svg { width: 14px; height: 14px; stroke: var(--cream); }
+  .footer-col-title {
+    font-size: 0.62rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    margin-bottom: 1.5rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 0.85rem; }
+  .footer-col ul li a {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.6);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-col ul li a:hover { color: var(--terracotta-light); }
+  .footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(245,240,232,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-bottom p {
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.25);
+  }
+  .footer-bottom a {
+    color: rgba(245,240,232,0.25);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-bottom a:hover { color: var(--terracotta-light); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .intro-section { grid-template-columns: 1fr; }
+    .intro-right { order: -1; }
+    .services-grid { grid-template-columns: 1fr; }
+    .service-card { aspect-ratio: 16/9; }
+    .sisters-section { grid-template-columns: 1fr; }
+    .sisters-right { display: none; }
+    .info-bar { grid-template-columns: 1fr; }
+    .info-item { border-right: none; border-bottom: 1px solid rgba(26,20,16,0.08); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .event-tag { display: none; }
+    body { cursor: auto; }
+    #cursor, #cursor-ring { display: none; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 6rem 5vw; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .hero-content { padding: 0 5vw 6vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">Bunte Bude</div>
+  <div class="loader-sub">Keramik Café · Schmelz</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#intro" onclick="closeMobile()">Über Uns</a>
+  <a href="#services" onclick="closeMobile()">Angebote</a>
+  <a href="#sisters" onclick="closeMobile()">Wir</a>
+  <a href="#events" onclick="closeMobile()">Events</a>
+  <a href="#booking" onclick="closeMobile()">Buchen</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#">Bunte Bude</a>
+  <ul class="nav-links">
+    <li><a href="#intro">Über Uns</a></li>
+    <li><a href="#services">Angebote</a></li>
+    <li><a href="#sisters">Unser Team</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#booking">Kontakt</a></li>
+  </ul>
+  <a class="nav-cta" href="#booking">Termin buchen</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-texture"></div>
+    <div class="hero-circles">
+      <div class="hero-circle"></div>
+      <div class="hero-circle"></div>
+      <div class="hero-circle"></div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Keramik Café · Schmelz · Saarland</p>
+    <h1 class="hero-title">Kommt <em>rein</em> —<br>jetzt wird's<br>kreativ!</h1>
+    <p class="hero-desc">Schluss mit Alltag. Bei uns bemalt ihr Keramik, schaltet ab und gestaltet euer eigenes Lieblingsstück. Wir übernehmen den Rest.</p>
+    <div class="hero-actions">
+      <a href="#booking" class="btn-primary">Termin buchen</a>
+      <a href="#services" class="btn-outline">Angebote entdecken</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span class="marquee-item">Keramik Bemalen</span>
+    <span class="marquee-item">Kreativ & Entspannt</span>
+    <span class="marquee-item">Kindergeburtstag</span>
+    <span class="marquee-item">JGA & Babyparty</span>
+    <span class="marquee-item">Glasieren & Brennen</span>
+    <span class="marquee-item">Unikat erschaffen</span>
+    <span class="marquee-item">Keramik Bemalen</span>
+    <span class="marquee-item">Kreativ & Entspannt</span>
+    <span class="marquee-item">Kindergeburtstag</span>
+    <span class="marquee-item">JGA & Babyparty</span>
+    <span class="marquee-item">Glasieren & Brennen</span>
+    <span class="marquee-item">Unikat erschaffen</span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section class="intro-section" id="intro">
+  <div class="intro-left reveal">
+    <div class="section-label">Über Uns</div>
+    <div class="h2">Dein Ort zum<br><em>Abschalten</em> &<br>Erschaffen</div>
+    <p>Bei der Bunten Bude tauschst du den Alltag gegen Pinsel, Farben und frischen Kaffee. Wähle dein Lieblingsstück aus unserer Keramiksammlung und gestalte es ganz nach deinem Geschmack.</p>
+    <p>Wir kümmern uns um das Glasieren und Brennen — du holst dein fertig gebranntes Unikat wenige Tage später ab.</p>
+    <a href="#services" class="btn-primary" style="align-self: flex-start; margin-top: 1rem;">Mehr erfahren</a>
+  </div>
+  <div class="intro-right reveal reveal-delay-2">
+    <div class="intro-img-wrap">
+      <!-- Placeholder - rich gradient ceramic-inspired visual -->
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#C4623A 0%,#8B4B2A 30%,#6B4030 60%,#A0724A 100%);display:flex;align-items:center;justify-content:center;">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="55" stroke="rgba(245,240,232,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="60" r="35" stroke="rgba(245,240,232,0.3)" stroke-width="1"/>
+          <path d="M40 75 Q60 40 80 75" stroke="rgba(245,240,232,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="60" cy="50" r="8" fill="rgba(245,240,232,0.2)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="intro-img-badge">
+      <span>100%</span>
+      <span>Dein Unikat</span>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section" id="services">
+  <div class="services-header">
+    <div class="reveal">
+      <div class="section-label">Angebote</div>
+      <div class="h2">Was erwartet<br>dich bei <em>uns</em></div>
+    </div>
+    <a href="#booking" class="btn-primary reveal reveal-delay-2" style="align-self: flex-start;">Alle Angebote</a>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-card-bg bg1"></div>
+      <div class="service-card-overlay"></div>
+      <div class="service-card-content">
+        <span class="service-num">01</span>
+        <span class="service-tag">Täglich geöffnet</span>
+        <h3 class="service-title">Keramik<br>Bemalen</h3>
+        <p class="service-desc">Wähle aus unserer großen Auswahl an Keramikstücken und bemal sie ganz nach deinen Wünschen. Ideal für Einzelbesucher und kleine Gruppen.</p>
+        <div class="service-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-card-bg bg2"></div>
+      <div class="service-card-overlay"></div>
+      <div class="service-card-content">
+        <span class="service-num">02</span>
+        <span class="service-tag">Events & Gruppen</span>
+        <h3 class="service-title">Private<br>Events</h3>
+        <p class="service-desc">JGA, Babyparty, Kindergeburtstag — feiert bei uns und erschafft dabei unvergessliche Erinnerungen aus Ton.</p>
+        <div class="service-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-card-bg bg3"></div>
+      <div class="service-card-overlay"></div>
+      <div class="service-card-content">
+        <span class="service-num">03</span>
+        <span class="service-tag">Verschenken</span>
+        <h3 class="service-title">Gutscheine &<br>Geschenke</h3>
+        <p class="service-desc">Verschenke ein kreatives Erlebnis. Unsere Gutscheine sind das perfekte Geschenk für Menschen, die etwas Besonderes suchen.</p>
+        <div class="service-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SISTERS -->
+<section class="sisters-section" id="sisters">
+  <div class="sisters-left">
+    <div class="section-label" style="color:var(--terracotta-light);">
+      <span style="width:2rem;height:1px;background:var(--terracotta-light);display:inline-block;margin-right:1rem;"></span>
+      Das Team
+    </div>
+    <div class="h2 reveal">Zwei Schwestern.<br><em>Ein Traum.</em></div>
+    <div class="sister-block reveal reveal-delay-1">
+      <p class="sister-name">Lena</p>
+      <p class="sister-role">Die große Schwester · Kreativkopf</p>
+      <p class="sister-bio">Lena ist das kreative Herz des Cafés — voller Ideen, Farben und manchmal auch ein kleines bisschen Chaos. Genau dieses Chaos macht ihre Kreativität aus und sorgt für immer neue, besondere Projekte.</p>
+    </div>
+    <div class="sister-block reveal reveal-delay-2">
+      <p class="sister-name">Sarah</p>
+      <p class="sister-role">Die kleine Schwester · Organisationstalent</p>
+      <p class="sister-bio">Sarah ist die Struktur hinter den Kulissen. Sie plant, organisiert und behält stets den Überblick, damit alles reibungslos läuft — damit Ideen zur Wirklichkeit werden.</p>
+    </div>
+  </div>
+  <div class="sisters-right">
+    <div class="sisters-right-bg">
+      <div class="sisters-decorative">
+        <div class="sisters-decorative-circle"></div>
+        <div class="sisters-decorative-circle"></div>
+        <div class="sisters-quote">
+          <p>„Kreativität ist<br>die schönste<br><span>Form der Freiheit."</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INFO BAR -->
+<div class="info-bar">
+  <div class="info-item reveal">
+    <div class="info-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <span class="info-label">Adresse</span>
+    <span class="info-value">Hüttersdorfer Straße 10<br>66839 Schmelz, Saarland</span>
+  </div>
+  <div class="info-item reveal reveal-delay-1">
+    <div class="info-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <span class="info-label">Öffnungszeiten</span>
+    <span class="info-value">Di – Fr: 14:00 – 19:00 Uhr<br>Sa & So: 11:30 – 19:00 Uhr<br><small style="color:var(--terracotta);font-size:0.8rem;">Mo: Ruhetag</small></span>
+  </div>
+  <div class="info-item reveal reveal-delay-2">
+    <div class="info-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+    </div>
+    <span class="info-label">Kontakt</span>
+    <span class="info-value"><a href="mailto:email@buntebude.com" style="color:var(--terracotta);text-decoration:none;">email@buntebude.com</a></span>
+  </div>
+</div>
+
+<!-- EVENTS -->
+<section class="events-section" id="events">
+  <div class="section-label reveal">Besondere Anlässe</div>
+  <div class="h2 reveal reveal-delay-1">Feiert mit uns <em>gemeinsam</em></div>
+  <div class="events-list">
+    <div class="event-row reveal">
+      <span class="event-num">01</span>
+      <span class="event-name">Kindergeburtstag</span>
+      <span class="event-tag">Kinder</span>
+      <span class="event-price">Ab Anfrage</span>
+    </div>
+    <div class="event-row reveal reveal-delay-1">
+      <span class="event-num">02</span>
+      <span class="event-name">Junggesellinnenabschied (JGA)</span>
+      <span class="event-tag">Gruppen</span>
+      <span class="event-price">Ab Anfrage</span>
+    </div>
+    <div class="event-row reveal reveal-delay-2">
+      <span class="event-num">03</span>
+      <span class="event-name">Babyparty</span>
+      <span class="event-tag">Familie</span>
+      <span class="event-price">Ab Anfrage</span>
+    </div>
+    <div class="event-row reveal reveal-delay-3">
+      <span class="event-num">04</span>
+      <span class="event-name">Firmen-Teambuilding</span>
+      <span class="event-tag">Business</span>
+      <span class="event-price">Ab Anfrage</span>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section">
+  <div class="gallery-header reveal">
+    <div>
+      <div class="section-label" style="color:rgba(245,240,232,0.4);">
+        <span style="background:rgba(245,240,232,0.4);"></span>
+        Inspirationen
+      </div>
+      <div class="h2">Jedes Stück<br>ein <em>Unikat</em></div>
+    </div>
+  </div>
+  <div class="gallery-strip">
+    <div class="gallery-item reveal">
+      <div class="gallery-item-bg g1"></div>
+      <div class="gallery-caption"><p>Handbemalte Tasse</p></div>
+    </div>
+    <div class="gallery-item reveal reveal-delay-1">
+      <div class="gallery-item-bg g2"></div>
+      <div class="gallery-caption"><p>Keramik-Schüssel</p></div>
+    </div>
+    <div class="gallery-item reveal reveal-delay-2">
+      <div class="gallery-item-bg g3"></div>
+      <div class="gallery-caption"><p>Dein Kunstwerk</p></div>
+    </div>
+    <div class="gallery-item reveal reveal-delay-3">
+      <div class="gallery-item-bg g4"></div>
+      <div class="gallery-caption"><p>Teller & Schalen</p></div>
+    </div>
+    <div class="gallery-item reveal reveal-delay-4">
+      <div class="gallery-item-bg g5"></div>
+      <div class="gallery-caption"><p>Kreative Momente</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="booking">
+  <div class="h2 reveal">Bereit zum<br>Kreativsein?</div>
+  <p class="reveal reveal-delay-1">Schnapp dir den Pinsel — wir freuen uns auf dich!</p>
+  <a href="https://www.buntebude.com/terminbuchung/" class="btn-primary reveal reveal-delay-2">Jetzt Termin buchen</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-name">Bunte Bude</div>
+      <p class="footer-brand-desc">Ein Ort zum Kreativsein, Abschalten und Erschaffen. Keramik Café im Herzen von Schmelz im Saarland.</p>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/profile.php?id=61572114051255" target="_blank" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/die.bunte.bude/" target="_blank" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="mailto:email@buntebude.com" aria-label="E-Mail">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Navigation</p>
+      <ul>
+        <li><a href="#intro">Über Uns</a></li>
+        <li><a href="#services">Angebote</a></li>
+        <li><a href="#sisters">Unser Team</a></li>
+        <li><a href="#events">Events</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Buchung</p>
+      <ul>
+        <li><a href="https://www.buntebude.com/terminbuchung/">Termin buchen</a></li>
+        <li><a href="https://www.buntebude.com/event-buchen/">Event buchen</a></li>
+        <li><a href="https://www.buntebude.com/gutscheine/">Gutscheine</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Rechtliches</p>
+      <ul>
+        <li><a href="https://www.buntebude.com/kontakt/impressum/">Impressum</a></li>
+        <li><a href="https://www.buntebude.com/kontakt/datenschutz/">Datenschutz</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Bunte Bude · Schmelz, Saarland</p>
+    <p>Made with <span style="color:var(--terracotta);">♥</span> von <a href="https://www.instagram.com/die.bunte.bude/">Lena & Sarah</a></p>
+  </div>
+</footer>
+
+<script>
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('done');
+    }, 2200);
+  });
+
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let cx = window.innerWidth/2, cy = window.innerHeight/2;
+  let rx = cx, ry = cy;
+
+  document.addEventListener('mousemove', e => {
+    cx = e.clientX; cy = e.clientY;
+    cursor.style.left = cx + 'px';
+    cursor.style.top = cy + 'px';
+  });
+
+  function animRing() {
+    rx += (cx - rx) * 0.12;
+    ry += (cy - ry) * 0.12;
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button, .service-card, .event-row, .gallery-item').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+  });
+
+  // Navbar scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  let menuOpen = false;
+
+  hamburger.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    mobileMenu.style.display = menuOpen ? 'flex' : 'none';
+    setTimeout(() => { if (menuOpen) mobileMenu.classList.add('open'); }, 10);
+    if (!menuOpen) mobileMenu.classList.remove('open');
+  });
+
+  function closeMobile() {
+    menuOpen = false;
+    mobileMenu.classList.remove('open');
+    setTimeout(() => { mobileMenu.style.display = 'none'; }, 400);
+  }
+
+  // Parallax hero circles (subtle)
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    document.querySelectorAll('.hero-circle').forEach((c, i) => {
+      c.style.transform = `translateY(${scrollY * (0.1 + i * 0.05)}px) rotate(${scrollY * 0.02}deg)`;
+    });
+  });
+</script>
+</body>
+</html>
